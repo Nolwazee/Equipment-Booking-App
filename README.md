@@ -1,4 +1,4 @@
-#  Lab Booking System
+#  Equipment Booking System
 
 <div align="center">
 
