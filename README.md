@@ -1,4 +1,4 @@
-# 🧪 Lab Booking System
+#  Lab Booking System
 
 <div align="center">
 
