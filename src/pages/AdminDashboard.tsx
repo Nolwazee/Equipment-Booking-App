@@ -91,10 +91,10 @@
      
      try {
        if (editingEquipment) {
-         await updateEquipment(editingEquipment.id, formData);
+         await updateEquipment(editingEquipment.id, { ...formData, image_url: null });
          toast({ title: 'Equipment Updated', description: 'Equipment has been updated successfully.' });
        } else {
-         await addEquipment(formData);
+         await addEquipment({ ...formData, image_url: null });
          toast({ title: 'Equipment Added', description: 'New equipment has been added.' });
        }
        setIsEquipmentModalOpen(false);

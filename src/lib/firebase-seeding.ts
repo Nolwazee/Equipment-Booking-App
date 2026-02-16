@@ -65,8 +65,9 @@ export async function seedAdminToFirebase() {
       email: DEMO_CREDENTIALS.admin.email,
       message: 'Admin user seeded successfully to Firebase!'
     };
-  } catch (error: any) {
-    if (error.code === 'auth/email-already-in-use') {
+  } catch (error) {
+    const err = error as { code?: string; message?: string };
+    if (err.code === 'auth/email-already-in-use') {
       console.log('ℹ️ Admin user already exists in Firebase');
       return { 
         success: true, 
@@ -77,12 +78,12 @@ export async function seedAdminToFirebase() {
     console.error('❌ Error seeding admin user:', error);
     return { 
       success: false, 
-      error: error.message 
+      error: err.message || 'Unknown error'
     };
   }
 }
 
 // Make the function globally available for browser console access
 if (typeof window !== 'undefined') {
-  (window as any).seedAdminToFirebase = seedAdminToFirebase;
+  (window as { seedAdminToFirebase?: typeof seedAdminToFirebase }).seedAdminToFirebase = seedAdminToFirebase;
 }
