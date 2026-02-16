@@ -1,8 +1,8 @@
  import { useAuth } from '@/hooks/useAuth';
  import { Button } from '@/components/ui/button';
  import { Badge } from '@/components/ui/badge';
- import { Beaker, Calendar, Settings, LogOut, User, LayoutDashboard } from 'lucide-react';
- import { useNavigate, useLocation } from 'react-router-dom';
+ import { Beaker, LogOut } from 'lucide-react';
+ import { useNavigate } from 'react-router-dom';
  
  export function DashboardHeader() {
    const { user, role, signOut } = useAuth();
@@ -13,13 +13,7 @@
      await signOut();
      navigate('/auth');
    };
- 
-   const isAdmin = role === 'admin';
-   const isOnAdminPage = location.pathname === '/admin';
- 
-   return (
-     <header className="border-b border-border bg-card sticky top-0 z-50">
-       <div className="container mx-auto px-4 py-4">
+
          <div className="flex items-center justify-between">
            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
              <div className="p-2 bg-primary rounded-lg">
@@ -32,26 +26,6 @@
            </div>
  
            <nav className="flex items-center gap-2">
-             {isAdmin && (
-               <Button
-                 variant={isOnAdminPage ? 'default' : 'ghost'}
-                 onClick={() => navigate('/admin')}
-                 className="gap-2"
-               >
-                 <Settings className="h-4 w-4" />
-                 Admin Panel
-               </Button>
-             )}
-             {isAdmin && isOnAdminPage && (
-               <Button
-                 variant="ghost"
-                 onClick={() => navigate('/')}
-                 className="gap-2"
-               >
-                 <LayoutDashboard className="h-4 w-4" />
-                 Student View
-               </Button>
-             )}
            </nav>
  
            <div className="flex items-center gap-4">

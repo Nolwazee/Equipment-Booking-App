@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, getDoc } from 'firebase/firestore';
 import { db } from '@/integrations/firebase/config';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -43,10 +43,34 @@ export function useBookings(isAdmin: boolean = false) {
       }
       
       const snapshot = await getDocs(q);
-      const bookingsData: Booking[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      } as Booking));
+      const bookingsData: Booking[] = await Promise.all(
+        snapshot.docs.map(async (docSnap) => {
+          const data = docSnap.data();
+          let equipment;
+          
+          // Fetch equipment details if equipment_id exists
+          if (data.equipment_id) {
+            try {
+              const equipmentDoc = await getDoc(doc(db, 'equipment', data.equipment_id));
+              if (equipmentDoc.exists()) {
+                const equipData = equipmentDoc.data();
+                equipment = {
+                  name: equipData.name || 'Unknown',
+                  location: equipData.location || 'Unknown',
+                };
+              }
+            } catch (err) {
+              console.error('Error fetching equipment:', err);
+            }
+          }
+          
+          return {
+            id: docSnap.id,
+            ...data,
+            equipment,
+          } as Booking;
+        })
+      );
       
       setBookings(bookingsData);
       setError(null);
@@ -79,6 +103,21 @@ export function useBookings(isAdmin: boolean = false) {
         updated_at: new Date().toISOString(),
       });
       
+      // Fetch equipment details for the new booking
+      let equipment;
+      try {
+        const equipmentDoc = await getDoc(doc(db, 'equipment', booking.equipment_id));
+        if (equipmentDoc.exists()) {
+          const equipData = equipmentDoc.data();
+          equipment = {
+            name: equipData.name || 'Unknown',
+            location: equipData.location || 'Unknown',
+          };
+        }
+      } catch (err) {
+        console.error('Error fetching equipment:', err);
+      }
+      
       const newBooking: Booking = {
         id: docRef.id,
         ...booking,
@@ -86,6 +125,7 @@ export function useBookings(isAdmin: boolean = false) {
         status: 'confirmed',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        equipment,
       };
       
       setBookings([...bookings, newBooking]);
